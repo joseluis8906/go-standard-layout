@@ -7,6 +7,9 @@ import (
 	stdhttp "net/http"
 	"time"
 
+	"github.com/joseluis8906/go-standard-layout/internal/application/commands"
+	"github.com/joseluis8906/go-standard-layout/internal/application/queries"
+	"github.com/joseluis8906/go-standard-layout/internal/infrastructure/inmemory"
 	"github.com/joseluis8906/go-standard-layout/pkg/config"
 	"github.com/joseluis8906/go-standard-layout/pkg/eventbus"
 	"github.com/joseluis8906/go-standard-layout/pkg/eventbus/kafka"
@@ -75,6 +78,18 @@ func main() {
 
 	r := http.NewChiRouter()
 	r.Handle("/metrics", promhttp.Handler())
+
+	postRepo := inmemory.NewPostRepository()
+
+	addPost := commands.AddPostHandler{
+		PostPersistor: postRepo,
+	}
+	r.HandleFunc("/addPost", addPost.HandleFunc)
+
+	getAllPosts := queries.GetAllPostHandler{
+		PostFinder: postRepo,
+	}
+	r.HandleFunc("/getAllPosts", getAllPosts.HandleFunc)
 
 	bind := fmt.Sprintf("%s:%d", viper.GetString("http.server.address"), viper.GetInt("http.server.port"))
 	log.Info("http server is listening on: %s", bind)
