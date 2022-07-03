@@ -1,6 +1,10 @@
 package ddd
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type (
 	Event struct {
@@ -9,3 +13,12 @@ type (
 		OccurredOn time.Time `json:"occurred_on"`
 	}
 )
+
+func NewEvent() Event {
+	id, _ := uuid.NewRandom()
+
+	return Event{
+		ID:         id.String(),
+		OccurredOn: time.Now(),
+	}
+}

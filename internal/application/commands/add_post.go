@@ -27,7 +27,7 @@ func (a AddPostHandler) do(ctx context.Context, command AddPost) error {
 	p, err := post.NewBuilder().
 		WithTitle(command.Title).
 		WithBody(command.Body).
-		Build()
+		Build(true)
 
 	if err != nil {
 		return err

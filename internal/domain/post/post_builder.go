@@ -1,5 +1,10 @@
 package post
 
+import (
+	"github.com/joseluis8906/go-standard-layout/pkg/eventbus"
+	"github.com/joseluis8906/go-standard-layout/pkg/events"
+)
+
 type (
 	Builder struct {
 		instance Post
@@ -11,7 +16,16 @@ func NewBuilder() *Builder {
 	return &Builder{}
 }
 
-func (b Builder) Build() (Post, error) {
+func (b Builder) Build(isNew bool) (Post, error) {
+	if isNew {
+		e := events.NewPostCreated()
+		e.Attributes.Title = b.instance.title
+		e.Attributes.Body = b.instance.body
+
+		b.instance.AddEventID(e.ID)
+		eventbus.Add(e.ID, e)
+	}
+
 	return b.instance, nil
 }
 
