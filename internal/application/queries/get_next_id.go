@@ -27,11 +27,11 @@ func (g GetNextIDHandler) do(ctx context.Context) (string, error) {
 
 func (g GetNextIDHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 	ctx := r.Context()
-	data, err := g.do(ctx)
+	id, err := g.do(ctx)
 	if err != nil {
 		http.JSON(w, stdhttp.StatusInternalServerError, nil, err)
 		return
 	}
 
-	http.JSON(w, stdhttp.StatusOK, data, nil)
+	http.JSON(w, stdhttp.StatusOK, id, nil)
 }

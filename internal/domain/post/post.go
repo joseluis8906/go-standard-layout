@@ -18,6 +18,10 @@ func NoopPost() Post {
 	return Post{id: NoopPostID()}
 }
 
+func (p Post) IsZero() bool {
+	return p.id.IsZero()
+}
+
 func (p Post) ID() PostID {
 	return p.id
 }

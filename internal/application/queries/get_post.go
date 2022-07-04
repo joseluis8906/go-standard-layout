@@ -2,12 +2,12 @@ package queries
 
 import (
 	"context"
+	"fmt"
 	stdhttp "net/http"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/joseluis8906/go-standard-layout/internal/domain/post"
 	"github.com/joseluis8906/go-standard-layout/pkg/http"
-	"github.com/joseluis8906/go-standard-layout/pkg/log"
 )
 
 type (
@@ -33,16 +33,12 @@ func (g GetPostHandler) do(ctx context.Context, query GetPost) (post.Post, error
 
 func (g GetPostHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 	ctx := r.Context()
-	dataID := chi.URLParam(r, "id")
 
-	id, err := post.ParsePostID(dataID)
-	log.Info(id)
-	if err != nil {
-		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
-		return
+	query := GetPost{
+		ID: chi.URLParam(r, "id"),
 	}
 
-	p, err := g.PostFinder.GetByID(ctx, id)
+	p, err := g.do(ctx, query)
 	if err != nil {
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
@@ -52,6 +48,11 @@ func (g GetPostHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request)
 		ID:    p.ID().String(),
 		Title: p.Title(),
 		Body:  p.Body(),
+	}
+
+	if p.IsZero() {
+		http.JSON(w, stdhttp.StatusNotFound, nil, fmt.Errorf("product not found"))
+		return
 	}
 
 	http.JSON(w, stdhttp.StatusOK, pr, nil)
