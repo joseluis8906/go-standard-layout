@@ -84,12 +84,20 @@ func main() {
 	addPost := commands.AddPostHandler{
 		PostPersistor: postRepo,
 	}
-	r.HandleFunc("/addPost", addPost.HandleFunc)
+	r.Post("/addPost", addPost.HandleFunc)
 
 	getAllPosts := queries.GetAllPostHandler{
 		PostFinder: postRepo,
 	}
-	r.HandleFunc("/getAllPosts", getAllPosts.HandleFunc)
+	r.Get("/allPosts", getAllPosts.HandleFunc)
+
+	getNextID := queries.GetNextIDHandler{}
+	r.Get("/nextID", getNextID.HandleFunc)
+
+	getPost := queries.GetPostHandler{
+		PostFinder: postRepo,
+	}
+	r.Get("/post/{id}", getPost.HandleFunc)
 
 	bind := fmt.Sprintf("%s:%d", viper.GetString("http.server.address"), viper.GetInt("http.server.port"))
 	log.Info("http server is listening on: %s", bind)

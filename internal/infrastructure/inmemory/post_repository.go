@@ -9,13 +9,13 @@ import (
 
 type (
 	PostRepository struct {
-		data []post.Post
+		data map[post.PostID]post.Post
 	}
 )
 
 func NewPostRepository() *PostRepository {
 	return &PostRepository{
-		data: []post.Post{},
+		data: map[post.PostID]post.Post{},
 	}
 }
 
@@ -29,10 +29,19 @@ func (r *PostRepository) Persist(ctx context.Context, p post.Post) (err error) {
 		eventbus.Publish(ctx, p.EventIDs())
 	}()
 
-	r.data = append(r.data, p)
+	r.data[p.ID()] = p
 	return nil
 }
 
 func (r *PostRepository) GetAll(ctx context.Context) ([]post.Post, error) {
-	return r.data, nil
+	posts := []post.Post{}
+	for _, p := range r.data {
+		posts = append(posts, p)
+	}
+
+	return posts, nil
+}
+
+func (r *PostRepository) GetByID(ctx context.Context, id post.PostID) (post.Post, error) {
+	return r.data[id], nil
 }

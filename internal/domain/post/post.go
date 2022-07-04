@@ -1,15 +1,26 @@
 package post
 
-import "github.com/joseluis8906/go-standard-layout/pkg/ddd"
+import (
+	"github.com/joseluis8906/go-standard-layout/pkg/ddd"
+)
 
 type (
 	Post struct {
 		ddd.Aggregate
 
+		id    PostID
 		title string
 		body  string
 	}
 )
+
+func NoopPost() Post {
+	return Post{id: NoopPostID()}
+}
+
+func (p Post) ID() PostID {
+	return p.id
+}
 
 func (p Post) Title() string {
 	return p.title

@@ -12,6 +12,7 @@ import (
 
 type (
 	AddPost struct {
+		ID    string `json:"id"`
 		Title string `json:"title"`
 		Body  string `json:"body"`
 	}
@@ -24,7 +25,13 @@ type (
 )
 
 func (a AddPostHandler) do(ctx context.Context, command AddPost) error {
+	id, err := post.ParsePostID(command.ID)
+	if err != nil {
+		return err
+	}
+
 	p, err := post.NewBuilder().
+		WithID(id).
 		WithTitle(command.Title).
 		WithBody(command.Body).
 		Build(true)

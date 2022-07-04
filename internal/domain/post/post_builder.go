@@ -29,6 +29,12 @@ func (b Builder) Build(isNew bool) (Post, error) {
 	return b.instance, nil
 }
 
+func (b *Builder) WithID(id PostID) *Builder {
+	b.instance.id = id
+
+	return b
+}
+
 func (b *Builder) WithTitle(title string) *Builder {
 	b.instance.title = title
 

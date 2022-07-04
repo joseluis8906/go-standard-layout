@@ -16,6 +16,7 @@ type (
 	}
 
 	postResponse struct {
+		ID    string `json:"id"`
 		Title string `json:"title"`
 		Body  string `json:"body"`
 	}
@@ -36,6 +37,7 @@ func (g GetAllPostHandler) do(ctx context.Context, query GetAllPosts) ([]postRes
 	posts := make([]postResponse, len(data))
 	for i, post := range data {
 		posts[i] = postResponse{
+			ID:    post.ID().String(),
 			Title: post.Title(),
 			Body:  post.Body(),
 		}
