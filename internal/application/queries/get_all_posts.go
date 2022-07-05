@@ -15,7 +15,7 @@ type (
 		Page int `json:"page"`
 	}
 
-	postResponse struct {
+	getAllPostResponse struct {
 		ID    string `json:"id"`
 		Title string `json:"title"`
 		Body  string `json:"body"`
@@ -28,15 +28,15 @@ type (
 	}
 )
 
-func (g GetAllPostHandler) do(ctx context.Context, query GetAllPosts) ([]postResponse, error) {
+func (g GetAllPostHandler) do(ctx context.Context, query GetAllPosts) ([]getAllPostResponse, error) {
 	data, err := g.PostFinder.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	posts := make([]postResponse, len(data))
+	posts := make([]getAllPostResponse, len(data))
 	for i, post := range data {
-		posts[i] = postResponse{
+		posts[i] = getAllPostResponse{
 			ID:    post.ID().String(),
 			Title: post.Title(),
 			Body:  post.Body(),
@@ -51,7 +51,7 @@ func (g GetAllPostHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Reque
 
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil {
-		log.Error(err)
+		log.Errorf("error trying to handle GetAllPosts, casting page query param to int: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}
@@ -62,7 +62,7 @@ func (g GetAllPostHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Reque
 
 	posts, err := g.do(ctx, query)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("error trying to handle GetAllPosts command: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}

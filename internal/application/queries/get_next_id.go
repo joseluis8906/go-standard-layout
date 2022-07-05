@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/joseluis8906/go-standard-layout/pkg/http"
+	"github.com/joseluis8906/go-standard-layout/pkg/log"
 )
 
 const (
@@ -29,6 +30,7 @@ func (g GetNextIDHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Reques
 	ctx := r.Context()
 	id, err := g.do(ctx)
 	if err != nil {
+		log.Errorf("error trying to handle GetNextID command: %v", err)
 		http.JSON(w, stdhttp.StatusInternalServerError, nil, err)
 		return
 	}

@@ -50,14 +50,14 @@ func (g AddPostHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request)
 
 	err := json.NewDecoder(r.Body).Decode(&command)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("error trying to handle AddPost command, casting command json: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}
 
 	err = g.do(ctx, command)
 	if err != nil {
-		log.Error(err)
+		log.Errorf("error trying to handle AddPost command: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}
