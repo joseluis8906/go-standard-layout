@@ -48,6 +48,7 @@ func (g GetAllPostHandler) do(ctx context.Context, query GetAllPosts) ([]getAllP
 
 func (g GetAllPostHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 	ctx := r.Context()
+	log.Info("testing logs")
 
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil {

@@ -48,7 +48,7 @@ func main() {
 	)
 
 	defer fluentHook.Close()
-	logger.Logger.AddHook(fluentHook)
+	logger.AddHook(fluentHook)
 
 	mongodbClient := mongo.NewMongo(
 		ctx,

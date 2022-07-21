@@ -1,5 +1,12 @@
 package log
 
+import (
+	"fmt"
+	"runtime"
+
+	"github.com/sirupsen/logrus"
+)
+
 type (
 	Logger interface {
 		Fatal(...interface{})
@@ -14,6 +21,8 @@ type (
 		Debugf(string, ...interface{})
 		Trace(...interface{})
 		Tracef(string, ...interface{})
+		WithField(string, interface{}) Logger
+		AddHook(logrus.Hook)
 	}
 )
 
@@ -30,49 +39,59 @@ func init() {
 }
 
 func Fatal(a ...interface{}) {
-	logger.Fatal(a...)
+	caller().Fatal(a...)
 }
 
 func Fatalf(format string, a ...interface{}) {
-	logger.Fatalf(format, a...)
+	caller().Fatalf(format, a...)
 }
 
 func Error(a ...interface{}) {
-	logger.Error(a...)
+	caller().Error(a...)
 }
 
 func Errorf(format string, a ...interface{}) {
-	logger.Errorf(format, a...)
+	caller().Errorf(format, a...)
 }
 
 func Warn(a ...interface{}) {
-	logger.Warn(a)
+	caller().Warn(a)
 }
 
 func Warnf(format string, a ...interface{}) {
-	logger.Warnf(format, a...)
+	caller().Warnf(format, a...)
 }
 
 func Info(a ...interface{}) {
-	logger.Info(a...)
+	caller().Info(a...)
 }
 
 func Infof(format string, a ...interface{}) {
-	logger.Infof(format, a...)
+	caller().Infof(format, a...)
 }
 
 func Debug(a ...interface{}) {
-	logger.Debug(a...)
+	caller().Debug(a...)
 }
 
 func Debugf(format string, a ...interface{}) {
-	logger.Debugf(format, a...)
+	caller().Debugf(format, a...)
 }
 
 func Trace(a ...interface{}) {
-	logger.Trace(a...)
+	caller().Trace(a...)
 }
 
 func Tracef(format string, a ...interface{}) {
-	logger.Tracef(format, a...)
+	caller().Tracef(format, a...)
+}
+
+func caller() Logger {
+	pc, file, line, ok := runtime.Caller(2)
+	if ok {
+		funcName := runtime.FuncForPC(pc).Name()
+		return logger.WithField("file", fmt.Sprintf("%s:%d", file, line)).WithField("func", funcName)
+	}
+
+	return logger
 }
