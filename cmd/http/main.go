@@ -33,7 +33,6 @@ func main() {
 	config.InitViper("./configs", "go-standard-layout", "yml")
 
 	logger := log.NewLogrus(
-		log.Caller(viper.GetBool("log.caller")),
 		log.Env(viper.GetString("environment")),
 		log.Formatter(viper.GetString("log.formatter")),
 		log.Level(viper.GetInt("log.level")),

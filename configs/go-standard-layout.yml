@@ -6,7 +6,6 @@ http:
 log:
   formatter: 'json'
   level: 6
-  caller: true
   fluentd:
     host: 'fluentd'
     port: 24224

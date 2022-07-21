@@ -44,12 +44,6 @@ func Level(opt int) OptionFunc {
 	}
 }
 
-func Caller(opt bool) OptionFunc {
-	return func(c *config) {
-		c.caller = opt
-	}
-}
-
 func Env(opt string) OptionFunc {
 	return func(c *config) {
 		c.env = opt
