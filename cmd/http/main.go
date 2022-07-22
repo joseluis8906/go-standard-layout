@@ -42,8 +42,6 @@ func main() {
 		logrus.Level(viper.GetInt("log.level")),
 	)
 
-	log.SetLogger(logger)
-
 	fluentHook := fluentd.NewHook(
 		fluentd.Host(viper.GetString("log.fluentd.host")),
 		fluentd.Port(viper.GetInt("log.fluentd.port")),
@@ -52,6 +50,8 @@ func main() {
 
 	defer fluentHook.Close()
 	logger.AddHook(fluentHook)
+
+	log.SetLogger(logger)
 
 	mongodbClient := mongo.NewMongo(
 		ctx,
