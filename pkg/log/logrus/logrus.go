@@ -1,13 +1,16 @@
-package log
+package logrus
 
 import (
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/joseluis8906/go-standard-layout/pkg/log"
 	"github.com/sirupsen/logrus"
 )
 
-func NewLogrus(opts ...OptionFunc) Logger {
+// New ...
+func New(opts ...OptionFunc) *Entry {
 	conf := &config{}
 	for _, opt := range opts {
 		opt(conf)
@@ -40,9 +43,19 @@ type Entry struct {
 }
 
 // WithField ...
-func (e *Entry) WithField(key string, value interface{}) Logger {
+func (e *Entry) WithField(key string, value interface{}) log.Logger {
 	e.entry = e.entry.WithField(key, value)
 	return e
+}
+
+// Panic ...
+func (e *Entry) Panic(args ...interface{}) {
+	e.entry.Panic(args...)
+}
+
+// Panicf ...
+func (e *Entry) Panicf(format string, args ...interface{}) {
+	e.entry.Panicf(format, args...)
 }
 
 // Fatal ...
@@ -106,6 +119,52 @@ func (e *Entry) Tracef(format string, args ...interface{}) {
 }
 
 // AddHook ...
-func (e *Entry) AddHook(hook logrus.Hook) {
-	e.entry.Logger.AddHook(hook)
+func (e *Entry) AddHook(aHook log.Hook) {
+	realHook := hook{
+		LevelFunc: aHook.Levels,
+		FireFunc:  aHook.Fire,
+	}
+
+	e.entry.Logger.AddHook(realHook)
+}
+
+// Level ...
+func (e *Entry) Level() log.Level {
+	return log.Level(e.entry.Level)
+}
+
+// Time ...
+func (e *Entry) Time() time.Time {
+	return e.entry.Time
+}
+
+// Message ...
+func (e *Entry) Message() string {
+	return e.entry.Message
+}
+
+// Data ...
+func (e *Entry) Data() map[string]interface{} {
+	return e.entry.Data
+}
+
+type hook struct {
+	LevelFunc func() []log.Level
+	FireFunc  func(log.Logger) error
+}
+
+func (h hook) Levels() []logrus.Level {
+	levels := h.LevelFunc()
+	logrusLevels := make([]logrus.Level, len(levels))
+
+	for i, level := range levels {
+		logrusLevels[i] = logrus.Level(level)
+	}
+
+	return logrusLevels
+}
+
+func (h hook) Fire(e *logrus.Entry) error {
+	realEntry := &Entry{entry: e}
+	return h.FireFunc(realEntry)
 }

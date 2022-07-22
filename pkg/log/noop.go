@@ -1,14 +1,19 @@
 package log
 
-import "github.com/sirupsen/logrus"
+import "time"
 
 type (
 	noopLogger struct{}
 )
 
+// NoopLogger ...
 func NoopLogger() Logger {
 	return &noopLogger{}
 }
+
+func (n *noopLogger) Panic(_ ...interface{}) {}
+
+func (n *noopLogger) Panicf(_ string, _ ...interface{}) {}
 
 func (n *noopLogger) Fatal(_ ...interface{}) {}
 
@@ -36,4 +41,12 @@ func (n *noopLogger) Tracef(_ string, _ ...interface{}) {}
 
 func (n *noopLogger) WithField(_ string, _ interface{}) Logger { return n }
 
-func (n *noopLogger) AddHook(_ logrus.Hook) {}
+func (n *noopLogger) AddHook(_ Hook) {}
+
+func (n *noopLogger) Data() map[string]interface{} { return nil }
+
+func (n *noopLogger) Time() time.Time { return time.Time{} }
+
+func (n *noopLogger) Message() string { return "" }
+
+func (n *noopLogger) Level() Level { return TraceLevel }

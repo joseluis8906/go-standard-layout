@@ -8,13 +8,17 @@ import (
 	"time"
 
 	"github.com/joseluis8906/go-standard-layout/internal/application/commands"
+	appcmdhttp "github.com/joseluis8906/go-standard-layout/internal/application/commands/http"
 	"github.com/joseluis8906/go-standard-layout/internal/application/queries"
+	appqtyhttp "github.com/joseluis8906/go-standard-layout/internal/application/queries/http"
 	"github.com/joseluis8906/go-standard-layout/internal/infrastructure/inmemory"
 	"github.com/joseluis8906/go-standard-layout/pkg/config"
 	"github.com/joseluis8906/go-standard-layout/pkg/eventbus"
 	"github.com/joseluis8906/go-standard-layout/pkg/eventbus/kafka"
 	"github.com/joseluis8906/go-standard-layout/pkg/http"
 	"github.com/joseluis8906/go-standard-layout/pkg/log"
+	"github.com/joseluis8906/go-standard-layout/pkg/log/fluentd"
+	"github.com/joseluis8906/go-standard-layout/pkg/log/logrus"
 	"github.com/joseluis8906/go-standard-layout/pkg/mongo"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
@@ -32,18 +36,18 @@ func main() {
 
 	config.InitViper("./configs", "go-standard-layout", "yml")
 
-	logger := log.NewLogrus(
-		log.Env(viper.GetString("environment")),
-		log.Formatter(viper.GetString("log.formatter")),
-		log.Level(viper.GetInt("log.level")),
+	logger := logrus.New(
+		logrus.Env(viper.GetString("environment")),
+		logrus.Formatter(viper.GetString("log.formatter")),
+		logrus.Level(viper.GetInt("log.level")),
 	)
 
 	log.SetLogger(logger)
 
-	fluentHook := log.NewFluentHook(
-		log.FluentdHost(viper.GetString("log.fluentd.host")),
-		log.FluentdPort(viper.GetInt("log.fluentd.port")),
-		log.FluentdAsync(true),
+	fluentHook := fluentd.NewHook(
+		fluentd.Host(viper.GetString("log.fluentd.host")),
+		fluentd.Port(viper.GetInt("log.fluentd.port")),
+		fluentd.Async(true),
 	)
 
 	defer fluentHook.Close()
@@ -80,25 +84,37 @@ func main() {
 
 	postRepo := inmemory.NewPostRepository()
 
-	addPost := commands.AddPostHandler{
-		PostPersistor: postRepo,
+	addPost := appcmdhttp.AddPost{
+		Handler: commands.AddPostHandler{
+			PostPersistor: postRepo,
+		},
 	}
+
 	r.Post("/addPost", addPost.HandleFunc)
 
-	getAllPosts := queries.GetAllPostHandler{
-		PostFinder: postRepo,
+	getAllPosts := appqtyhttp.GetAllPost{
+		Handler: queries.GetAllPostHandler{
+			PostFinder: postRepo,
+		},
 	}
+
 	r.Get("/allPosts", getAllPosts.HandleFunc)
 
-	getNextID := queries.GetNextIDHandler{}
+	getNextID := appqtyhttp.GetNextID{
+		Handler: queries.GetNextIDHandler{},
+	}
+
 	r.Get("/nextID", getNextID.HandleFunc)
 
-	getPost := queries.GetPostHandler{
-		PostFinder: postRepo,
+	getPost := appqtyhttp.GetPost{
+		Handler: queries.GetPostHandler{
+			PostFinder: postRepo,
+		},
 	}
+
 	r.Get("/post/{id}", getPost.HandleFunc)
 
 	bind := fmt.Sprintf("%s:%d", viper.GetString("http.server.address"), viper.GetInt("http.server.port"))
-	log.Info("http server is listening on: %s", bind)
+	log.Infof("http server is listening on: %s", bind)
 	log.Fatal(stdhttp.ListenAndServe(bind, r))
 }

@@ -3,12 +3,14 @@ package log
 import (
 	"fmt"
 	"runtime"
-
-	"github.com/sirupsen/logrus"
+	"time"
 )
 
 type (
+	// Logger ...
 	Logger interface {
+		Panic(...interface{})
+		Panicf(string, ...interface{})
 		Fatal(...interface{})
 		Fatalf(string, ...interface{})
 		Error(...interface{})
@@ -22,14 +24,76 @@ type (
 		Trace(...interface{})
 		Tracef(string, ...interface{})
 		WithField(string, interface{}) Logger
-		AddHook(logrus.Hook)
+		Level() Level
+		Message() string
+		Data() map[string]interface{}
+		Time() time.Time
+		AddHook(Hook)
 	}
+
+	// Hook ...
+	Hook interface {
+		Levels() []Level
+		Fire(Logger) error
+	}
+
+	// Level ...
+	Level int
+)
+
+// String ...
+func (level Level) String() string {
+	if b, err := level.MarshalText(); err == nil {
+		return string(b)
+	}
+
+	return "unknown"
+}
+
+// MarshalText ...
+func (level Level) MarshalText() ([]byte, error) {
+	switch level {
+	case TraceLevel:
+		return []byte("trace"), nil
+	case DebugLevel:
+		return []byte("debug"), nil
+	case InfoLevel:
+		return []byte("info"), nil
+	case WarnLevel:
+		return []byte("warning"), nil
+	case ErrorLevel:
+		return []byte("error"), nil
+	case FatalLevel:
+		return []byte("fatal"), nil
+	case PanicLevel:
+		return []byte("panic"), nil
+	}
+
+	return nil, fmt.Errorf("not a valid log level %d", level)
+}
+
+const (
+	// PanicLevel ...
+	PanicLevel = Level(0)
+	// FatalLevel ...
+	FatalLevel = Level(1)
+	// ErrorLevel ...
+	ErrorLevel = Level(2)
+	// WarnLevel ...
+	WarnLevel = Level(3)
+	// InfoLevel ...
+	InfoLevel = Level(4)
+	// DebugLevel ...
+	DebugLevel = Level(5)
+	// TraceLevel ...
+	TraceLevel = Level(6)
 )
 
 var (
 	logger Logger
 )
 
+// SetLogger ...
 func SetLogger(aLogger Logger) {
 	logger = aLogger
 }
@@ -38,52 +102,74 @@ func init() {
 	SetLogger(NoopLogger())
 }
 
-func Fatal(a ...interface{}) {
-	caller().Fatal(a...)
+// Panic ...
+func Panic(args ...interface{}) {
+	caller().Panic(args...)
 }
 
-func Fatalf(format string, a ...interface{}) {
-	caller().Fatalf(format, a...)
+// Panicf ...
+func Panicf(format string, args ...interface{}) {
+	caller().Panicf(format, args...)
 }
 
-func Error(a ...interface{}) {
-	caller().Error(a...)
+// Fatal ...
+func Fatal(args ...interface{}) {
+	caller().Fatal(args...)
 }
 
-func Errorf(format string, a ...interface{}) {
-	caller().Errorf(format, a...)
+// Fatalf ...
+func Fatalf(format string, args ...interface{}) {
+	caller().Fatalf(format, args...)
 }
 
-func Warn(a ...interface{}) {
-	caller().Warn(a)
+// Error ...
+func Error(args ...interface{}) {
+	caller().Error(args...)
 }
 
-func Warnf(format string, a ...interface{}) {
-	caller().Warnf(format, a...)
+// Errorf ...
+func Errorf(format string, args ...interface{}) {
+	caller().Errorf(format, args...)
 }
 
-func Info(a ...interface{}) {
-	caller().Info(a...)
+// Warn ...
+func Warn(args ...interface{}) {
+	caller().Warn(args)
 }
 
-func Infof(format string, a ...interface{}) {
-	caller().Infof(format, a...)
+// Warnf ...
+func Warnf(format string, args ...interface{}) {
+	caller().Warnf(format, args...)
 }
 
-func Debug(a ...interface{}) {
-	caller().Debug(a...)
+// Info ...
+func Info(args ...interface{}) {
+	caller().Info(args...)
 }
 
-func Debugf(format string, a ...interface{}) {
-	caller().Debugf(format, a...)
+// Infof ...
+func Infof(format string, args ...interface{}) {
+	caller().Infof(format, args...)
 }
 
-func Trace(a ...interface{}) {
-	caller().Trace(a...)
+// Debug ...
+func Debug(args ...interface{}) {
+	caller().Debug(args...)
 }
 
-func Tracef(format string, a ...interface{}) {
-	caller().Tracef(format, a...)
+// Debugf ...
+func Debugf(format string, args ...interface{}) {
+	caller().Debugf(format, args...)
+}
+
+// Trace ...
+func Trace(args ...interface{}) {
+	caller().Trace(args...)
+}
+
+// Tracef ...
+func Tracef(format string, args ...interface{}) {
+	caller().Tracef(format, args...)
 }
 
 func caller() Logger {

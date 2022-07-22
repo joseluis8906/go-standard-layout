@@ -2,21 +2,19 @@ package commands
 
 import (
 	"context"
-	"encoding/json"
-	stdhttp "net/http"
 
 	"github.com/joseluis8906/go-standard-layout/internal/domain/post"
-	"github.com/joseluis8906/go-standard-layout/pkg/http"
-	"github.com/joseluis8906/go-standard-layout/pkg/log"
 )
 
 type (
+	// AddPost ...
 	AddPost struct {
 		ID    string `json:"id"`
 		Title string `json:"title"`
 		Body  string `json:"body"`
 	}
 
+	// AddPostHandler ...
 	AddPostHandler struct {
 		PostPersistor interface {
 			Persist(context.Context, post.Post) error
@@ -24,7 +22,8 @@ type (
 	}
 )
 
-func (a AddPostHandler) do(ctx context.Context, command AddPost) error {
+// Do ...
+func (a AddPostHandler) Do(ctx context.Context, command AddPost) error {
 	id, err := post.ParsePostID(command.ID)
 	if err != nil {
 		return err
@@ -41,26 +40,4 @@ func (a AddPostHandler) do(ctx context.Context, command AddPost) error {
 	}
 
 	return a.PostPersistor.Persist(ctx, p)
-}
-
-func (g AddPostHandler) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
-	ctx := r.Context()
-
-	var command AddPost
-
-	err := json.NewDecoder(r.Body).Decode(&command)
-	if err != nil {
-		log.Errorf("error trying to handle AddPost command, casting command json: %v", err)
-		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
-		return
-	}
-
-	err = g.do(ctx, command)
-	if err != nil {
-		log.Errorf("error trying to handle AddPost command: %v", err)
-		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
-		return
-	}
-
-	http.JSON(w, stdhttp.StatusCreated, nil, nil)
 }
