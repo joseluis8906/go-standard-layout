@@ -9,7 +9,7 @@ import (
 type (
 	// GetPost ...
 	GetPost struct {
-		ID string `json:"id"`
+		ID string
 	}
 
 	// GetPostHandler ...

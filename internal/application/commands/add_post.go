@@ -9,9 +9,9 @@ import (
 type (
 	// AddPost ...
 	AddPost struct {
-		ID    string `json:"id"`
-		Title string `json:"title"`
-		Body  string `json:"body"`
+		ID    string
+		Title string
+		Body  string
 	}
 
 	// AddPostHandler ...
