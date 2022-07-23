@@ -30,7 +30,7 @@ func main() {
 	ctx, cancelFn := context.WithCancel(context.Background())
 	defer cancelFn()
 
-	config.InitViper("./configs", "go-standard-layout", "yml")
+	config.Load("./configs", "go-standard-layout", "yml")
 
 	logger := logrus.New(
 		logrus.Env(viper.GetString("environment")),
