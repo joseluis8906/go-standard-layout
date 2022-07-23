@@ -24,10 +24,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-const (
-	port = 8000
-)
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
