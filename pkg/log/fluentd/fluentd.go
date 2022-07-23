@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/fluent/fluent-logger-golang/fluent"
-	"github.com/joseluis8906/go-standard-layout/pkg/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type (
@@ -53,14 +53,19 @@ func (h *Hook) Close() error {
 }
 
 // Fire ...
-func (h *Hook) Fire(e log.Logger) error {
+func (h *Hook) Fire(e *log.Entry) error {
 	data := map[string]string{
-		"level":   e.Level().String(),
-		"message": e.Message(),
-		"time":    e.Time().Format(time.RFC3339Nano),
+		"level":   e.Level.String(),
+		"message": e.Message,
+		"time":    e.Time.Format(time.RFC3339Nano),
 	}
 
-	for k, v := range e.Data() {
+	if e.HasCaller() {
+		data["file"] = fmt.Sprintf("%s:%d", e.Caller.File, e.Caller.Line)
+		data["func"] = e.Caller.Function
+	}
+
+	for k, v := range e.Data {
 		data[k] = fmt.Sprintf("%s", v)
 	}
 
@@ -69,7 +74,7 @@ func (h *Hook) Fire(e log.Logger) error {
 		tag = "fluentd"
 	}
 
-	return h.client.PostWithTime(tag, e.Time(), data)
+	return h.client.PostWithTime(tag, e.Time, data)
 }
 
 // Levels ...

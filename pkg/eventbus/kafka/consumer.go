@@ -30,7 +30,7 @@ func (c *Consumer) Listen(ctx context.Context) chan []byte {
 				if err != nil {
 					kafkaErr, ok := err.(stdkafka.Error)
 					if ok && kafkaErr.Code() != stdkafka.ErrTimedOut {
-						log.Errorf("Consumer error: %v", err)
+						log.Logger().Errorf("Consumer error: %v", err)
 						continue
 					}
 				}
@@ -62,12 +62,12 @@ func NewConsumer(opts ...OptionFunc) *stdkafka.Consumer {
 
 	c, err := stdkafka.NewConsumer(confMap)
 	if err != nil {
-		log.Fatalf("error trying to connect to kafka: %v", err)
+		log.Logger().Fatalf("error trying to connect to kafka: %v", err)
 	}
 
 	err = c.SubscribeTopics(conf.consumerTopics, nil)
 	if err != nil {
-		log.Fatalf("error trying to subscribe to kafka: %v", err)
+		log.Logger().Fatalf("error trying to subscribe to kafka: %v", err)
 	}
 
 	return c

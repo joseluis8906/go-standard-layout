@@ -9,6 +9,8 @@ import (
 )
 
 func TestEncodeDecode(t *testing.T) {
+	ctx := context.Background()
+
 	type Data struct {
 		ID   string `json:"id"`
 		Name string `json:"name"`
@@ -19,9 +21,9 @@ func TestEncodeDecode(t *testing.T) {
 		Name: "John Doe",
 	}
 
-	secret := "qweqwopeipqw"
+	secret := "my secret"
 
-	token, err := jwt.Encode(context.Background(), secret, data, time.Duration(time.Now().Unix()+3))
+	token, err := jwt.Encode(ctx, secret, data, time.Duration(time.Now().Unix()+3))
 	if err != nil {
 		t.Error(err)
 	}
@@ -30,7 +32,7 @@ func TestEncodeDecode(t *testing.T) {
 
 	var data2 Data
 
-	err = jwt.Decode(context.Background(), secret, token, &data2)
+	err = jwt.Decode(ctx, secret, token, &data2)
 	if err != nil {
 		t.Error(err)
 	}

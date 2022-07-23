@@ -40,6 +40,7 @@ func main() {
 		logrus.Env(viper.GetString("environment")),
 		logrus.Formatter(viper.GetString("log.formatter")),
 		logrus.Level(viper.GetInt("log.level")),
+		logrus.Caller(viper.GetBool("log.caller")),
 	)
 
 	fluentHook := fluentd.NewHook(
@@ -49,7 +50,7 @@ func main() {
 	)
 
 	defer fluentHook.Close()
-	logger.AddHook(fluentHook)
+	logger.Logger.AddHook(fluentHook)
 
 	log.SetLogger(logger)
 
@@ -79,7 +80,15 @@ func main() {
 		Topic:  viper.GetString("kafka.producer.topic"),
 	}))
 
-	r := http.NewChiRouter()
+	r := http.NewRouter(
+		http.AllowedOrigins(viper.GetStringSlice("http.router.allowed_origins")),
+		http.AllowdMethods(viper.GetStringSlice("http.router.allowed_methods")),
+		http.AllowedHeaders(viper.GetStringSlice("http.router.allowedHeaders")),
+		http.ExposedHeaders(viper.GetStringSlice("http.router.exposed_headers")),
+		http.AllowCredentials(viper.GetBool("http.router.allow_credentials")),
+		http.MaxAge(viper.GetInt("http.router.max_age")),
+	)
+
 	r.Handle("/metrics", promhttp.Handler())
 
 	postRepo := inmemory.NewPostRepository()
@@ -115,6 +124,6 @@ func main() {
 	r.Get("/post/{id}", getPost.HandleFunc)
 
 	bind := fmt.Sprintf("%s:%d", viper.GetString("http.server.address"), viper.GetInt("http.server.port"))
-	log.Infof("http server is listening on: %s", bind)
-	log.Fatal(stdhttp.ListenAndServe(bind, r))
+	log.Logger().Infof("http server is listening on: %s", bind)
+	log.Logger().Fatal(stdhttp.ListenAndServe(bind, r))
 }

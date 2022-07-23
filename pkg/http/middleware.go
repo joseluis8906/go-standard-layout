@@ -9,11 +9,11 @@ import (
 
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Infof("<-- [%s] %s", r.Method, r.RequestURI)
+		log.Logger().Infof("<-- [%s] %s", r.Method, r.RequestURI)
 		lrw := negroni.NewResponseWriter(w)
 		next.ServeHTTP(lrw, r)
 		statusCode := lrw.Status()
-		log.Infof("--> [%s] %s [%d %s]", r.Method, r.RequestURI, statusCode, http.StatusText(statusCode))
+		log.Logger().Infof("--> [%s] %s [%d %s]", r.Method, r.RequestURI, statusCode, http.StatusText(statusCode))
 	})
 }
 

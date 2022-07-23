@@ -29,7 +29,7 @@ func (gap GetAllPost) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 	if err != nil {
-		log.Errorf("error trying to handle GetAllPosts, casting page query param to int: %v", err)
+		log.Logger().Errorf("error trying to handle GetAllPosts, casting page query param to int: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}
@@ -40,7 +40,7 @@ func (gap GetAllPost) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 
 	posts, err := gap.Handler.Do(ctx, query)
 	if err != nil {
-		log.Errorf("error trying to handle GetAllPosts command: %v", err)
+		log.Logger().Errorf("error trying to handle GetAllPosts command: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}

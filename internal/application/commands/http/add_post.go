@@ -30,7 +30,7 @@ func (a AddPost) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		log.Errorf("error trying to handle AddPost command, casting req json: %v", err)
+		log.Logger().Errorf("error trying to handle AddPost command, casting req json: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}
@@ -43,7 +43,7 @@ func (a AddPost) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 
 	err = a.Handler.Do(ctx, command)
 	if err != nil {
-		log.Errorf("error trying to handle AddPost command: %v", err)
+		log.Logger().Errorf("error trying to handle AddPost command: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}

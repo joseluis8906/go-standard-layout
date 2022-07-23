@@ -22,7 +22,7 @@ func NewClientConn(opts ...OptionFunc) *stdgrpc.ClientConn {
 	)
 
 	if err != nil {
-		log.Fatalf("error trying to open grpc sales client: %v", err)
+		log.Logger().Fatalf("error trying to open grpc sales client: %v", err)
 	}
 
 	return conn

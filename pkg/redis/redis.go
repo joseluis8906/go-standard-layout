@@ -8,6 +8,7 @@ import (
 	"github.com/joseluis8906/go-standard-layout/pkg/log"
 )
 
+// NewClient ...
 func NewClient(ctx context.Context, opts ...OptionFunc) *stdredis.Client {
 	conf := &config{}
 	for _, opt := range opts {
@@ -22,7 +23,7 @@ func NewClient(ctx context.Context, opts ...OptionFunc) *stdredis.Client {
 
 	pong := client.Ping(ctx)
 	if err := pong.Err(); err != nil {
-		log.Fatalf("error trying to connect redis: %v", err)
+		log.Logger().Fatalf("error trying to connect redis: %v", err)
 	}
 
 	return client

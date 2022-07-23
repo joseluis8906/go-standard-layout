@@ -8,12 +8,14 @@ import (
 )
 
 type (
+	// Publisher ...
 	Publisher struct {
 		Client *stdkafka.Producer
 		Topic  string
 	}
 )
 
+// Publish ...
 func (p *Publisher) Publish(_ context.Context, msj []byte) error {
 	err := p.Client.Produce(&stdkafka.Message{
 		TopicPartition: stdkafka.TopicPartition{
@@ -26,6 +28,7 @@ func (p *Publisher) Publish(_ context.Context, msj []byte) error {
 	return err
 }
 
+// NewProducer ...
 func NewProducer(opts ...OptionFunc) *stdkafka.Producer {
 	conf := &config{}
 	for _, opt := range opts {
@@ -38,7 +41,7 @@ func NewProducer(opts ...OptionFunc) *stdkafka.Producer {
 
 	p, err := stdkafka.NewProducer(confMap)
 	if err != nil {
-		log.Fatalf("error trying to connect to kafka: %v", err)
+		log.Logger().Fatalf("error trying to connect to kafka: %v", err)
 	}
 
 	go func() {
@@ -46,11 +49,11 @@ func NewProducer(opts ...OptionFunc) *stdkafka.Producer {
 			switch ev := e.(type) {
 			case *stdkafka.Message:
 				if ev.TopicPartition.Error != nil {
-					log.Errorf("delivery failed: %s", ev.TopicPartition)
+					log.Logger().Errorf("delivery failed: %s", ev.TopicPartition)
 					continue
 				}
 
-				log.Info("delivered message to %s", ev.TopicPartition)
+				log.Logger().Infof("delivered message to %s", ev.TopicPartition)
 			}
 		}
 	}()

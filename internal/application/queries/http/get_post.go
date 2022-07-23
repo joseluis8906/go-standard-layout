@@ -33,7 +33,7 @@ func (gp GetPost) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 
 	p, err := gp.Handler.Do(ctx, query)
 	if err != nil {
-		log.Errorf("error trying to handle GetPost command: %v", err)
+		log.Logger().Errorf("error trying to handle GetPost command: %v", err)
 		http.JSON(w, stdhttp.StatusBadRequest, nil, err)
 		return
 	}
@@ -45,7 +45,7 @@ func (gp GetPost) HandleFunc(w stdhttp.ResponseWriter, r *stdhttp.Request) {
 	}
 
 	if p.IsZero() {
-		log.Errorf("error trying to handle GetPost command, product is zero: %v", p)
+		log.Logger().Errorf("error trying to handle GetPost command, product is zero: %v", p)
 		http.JSON(w, stdhttp.StatusNotFound, nil, fmt.Errorf("product not found"))
 		return
 	}

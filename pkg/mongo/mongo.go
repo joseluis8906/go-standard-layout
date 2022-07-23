@@ -26,7 +26,7 @@ func NewMongo(ctx context.Context, opts ...OptionFunc) *mongo.Client {
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
-		log.Fatalf("error trying to connect to mongo: %v", err)
+		log.Logger().Fatalf("error trying to connect to mongo: %v", err)
 	}
 
 	return client
